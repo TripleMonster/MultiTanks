@@ -23,7 +23,7 @@ namespace Manager {
         [HideInInspector] public UEvent_by_f m_speedUpEvent = new UEvent_by_f();
         [HideInInspector] public UEvent_by m_stopMoveEvent = new UEvent_by();
 
-		private bool[] m_notFirst = new bool[10];   // 记录所有连接到当前房间的id,  为了断线重连用的
+		private bool[] m_notFirst = new bool[10];   // 记录所有连接到当前房间的id,  为了断线重连用的s
 
         private static NetworkingManager s_instance = null;
         private NetworkingManager() {}
