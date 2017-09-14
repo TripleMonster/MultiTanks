@@ -64,20 +64,20 @@ namespace Manager {
 
 		void Update ()
 		{
-			if (m_isInited && !m_isCooling) {
-				string text = string.Format ("当前剩余子弹数 : <color=#00FF01FF>{0}</color>", m_SelfTank.m_Shooting.GetCurrentlyHavedShootTimes());
-				m_SelfMessage.text = text;
-			}
+			//if (m_isInited && !m_isCooling) {
+			//	string text = string.Format ("当前剩余子弹数 : <color=#00FF01FF>{0}</color>", m_SelfTank.m_Shooting.GetCurrentlyHavedShootTimes());
+			//	m_SelfMessage.text = text;
+			//}
 
-			if (m_isInited && m_isCooling) {
-				m_Timer += Time.deltaTime;
+			//if (m_isInited && m_isCooling) {
+			//	m_Timer += Time.deltaTime;
 
-				m_CoolingImage.fillAmount = (m_CoolTime - m_Timer) / m_CoolTime;
-				if (m_Timer > m_CoolTime) {
-					setShootButtonCooling (false);
-					m_Timer = 0;
-				}
-			}
+			//	m_CoolingImage.fillAmount = (m_CoolTime - m_Timer) / m_CoolTime;
+			//	if (m_Timer > m_CoolTime) {
+			//		setShootButtonCooling (false);
+			//		m_Timer = 0;
+			//	}
+			//}
 		}
 			
 
@@ -264,7 +264,7 @@ namespace Manager {
 		*/
         public void SynSelfDeath(byte index) {
             m_OverEvent.Invoke(index);
-            //m_followControl.SetColorCorrectionCurvesSaturation(0);
+            m_followControl.SetColorCorrectionCurvesSaturation(0);
 
 			Hashtable table = new Hashtable ();
 			table.Add ("name", SYN_SELF.DEATH);

@@ -39,7 +39,7 @@ namespace Manager {
             init("58e33562af2b4124", 3);
             config("time-machine", "true");
             config("debug-level", "7");
-            connect(1);
+            connect("");
         }
 
         public byte getClientIndex() {
@@ -75,7 +75,7 @@ namespace Manager {
             byte index = fromIndex;
             Hashtable values = TankUtils.fromBytes(data);
 			string name = (string)values ["name"];
-            Debug.Log(name);
+
 			switch (name) {
 			case SYN_OTHER.POSTION:
 				{
