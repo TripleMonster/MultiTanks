@@ -14,7 +14,6 @@ namespace Manager {
 		#region  -------------------------初始化
 		[HideInInspector] public OtherTank[] m_OtherTanks;
 		[HideInInspector] public SelfTank m_SelfTank;
-		public CameraControl m_CameraControl;
 		public GameObject m_Prefab;
 		public GameObject m_GameJoystick;
 		public GameObject m_GameShootButton;
@@ -126,7 +125,6 @@ namespace Manager {
 			m_SelfTank.m_SpeedupButton = m_GameSpeedupButtion.GetComponent<ETCButton> ();
 
             if (m_SelfTank.initTank (index, initColor, "坦克" + index + "号", initPos)) {
-                //m_CameraControl.m_Target = m_SelfTank.m_Instance.transform;
                 m_followControl.m_followTarget = m_SelfTank.m_Instance.transform;
 
 				m_SelfTank.m_Movement.m_moveEvent.AddListener (SynSelfTankMove);
