@@ -18,8 +18,9 @@ namespace Complete
 
 			Setup ();
 
-			//m_Instance.layer = 26;
+            //m_Instance.layer = 26;
 
+            m_Shooting.m_isSelf = true;
 			m_Movement.m_isSelf = true;
 			m_Health.m_isTeamMate = true;
 			initEasyTouch ();

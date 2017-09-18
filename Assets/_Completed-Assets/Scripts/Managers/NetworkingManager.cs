@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Text;
 using UnityEngine.Events;
 
 using Nanolink;
@@ -52,8 +53,6 @@ namespace Manager {
 
 		protected override void onConnected () 
 		{
-            Debug.Log ("连接上了 role=" + getClientIndex());
-
 			base.onConnected ();
 
 			status = "connected";
@@ -67,7 +66,6 @@ namespace Manager {
 		}
 
         protected override void onResync (byte fromIndex) {
-            Debug.Log ("重新同步全量数据" + fromIndex);
             m_AllDataEvent.Invoke ();
 		}
 
@@ -79,14 +77,12 @@ namespace Manager {
 			switch (name) {
 			case SYN_OTHER.POSTION:
 				{
-                    //Debug.Log ("接收到网络更新，玩家位置:" + (Int64)values ["x"] + ", " + (Int64)values ["z"]);
                    m_NotifyEvent.Invoke (index, (float)values ["x"], (float)values ["z"]);	
 				}
 				break;
 			case SYN_OTHER.SHOOT:
 				{
 					int isshoot = (int)values ["isshoot"];
-					//Debug.Log ("接受到网络玩家的射击动作:" + isshoot);
 					if (isshoot == 1) {
 						m_ShootEvent.Invoke (index , 0, 0);
 					}
@@ -100,7 +96,6 @@ namespace Manager {
 				break;
 			case SYN_OTHER.DEATH:
 				{
-					//Debug.Log ("接受到网络玩家的死亡信息+++++++++++++++");
 					m_notFirst [index] = false;
                     int killerIndex = (int)values ["index"];
                     m_DeathEvent.Invoke (index, (byte)killerIndex);
@@ -108,7 +103,6 @@ namespace Manager {
 				break; 
 			case SYN_OTHER.LOCKED_TARGET:
 				{
-					//Debug.Log ("接收到网络玩家锁定攻击目标的信息");
 					m_LockedTargetEvent.Invoke (index, (float)values["x"], (float)values["z"]);
 				}
 				break;
@@ -116,7 +110,6 @@ namespace Manager {
 				{
 					// 同步全量数据, 如果该index在本地已经存储了,就更新本地数据, 否则就新创建
 					TANK_DATA tankData = new TANK_DATA (index, new Vector2((float)values ["x"], (float)values ["z"]), (Color)values ["color"], (float)values["health"]);
-					//Debug.Log ("创建坦克， 索引：" + index);
 					m_CreateEvent.Invoke (tankData, m_notFirst[index]);
 					m_notFirst [index] = true;
 				}
@@ -147,7 +140,7 @@ namespace Manager {
 				return;
 
 			GUIStyle guiStyle = new GUIStyle();
-            guiStyle.normal.textColor = Color.white;
+            guiStyle.normal.textColor = Color.blue;
 			guiStyle.fontSize = 27;
 
 			// 延迟 us->ms
@@ -215,17 +208,40 @@ namespace Manager {
 				recvTotalBytes = dictionary["recv.total.bytes"];
 			}
 
-			GUI.Label(new Rect(10, 10, 200, 200), "状态: " + s, guiStyle);
+            StringBuilder sb1 = new StringBuilder();
+            sb1.Append("状态:");
+            sb1.Append(s);
+            GUI.Label(new Rect(10, 10, 200, 200), sb1.ToString(), guiStyle);
 
-			GUI.Label(new Rect(10, 30, 200, 200), targetIdStr + ", 设备: " + clientId, guiStyle);
+			StringBuilder sb2 = new StringBuilder();
+			sb2.Append(targetIdStr);
+			sb2.Append(",设备:");
+            sb2.Append(clientId);
+            GUI.Label(new Rect(10, 30, 200, 200), sb2.ToString(), guiStyle);
 
 			// 延迟
-			if (latency >= 0)
-				GUI.Label(new Rect(10, 50, 200, 200), "时延: " + latency + " ms", guiStyle);
-			else
-				GUI.Label(new Rect(10, 50, 200, 200), "时延: ", guiStyle);
+            if (latency >= 0) {
+				StringBuilder sb3 = new StringBuilder();
+                sb3.Append("时延:");
+                sb3.Append(latency);
+                sb3.Append("ms");
+                GUI.Label(new Rect(10, 50, 200, 200), sb3.ToString(), guiStyle);
+            }
 
-			GUI.Label(new Rect(10, 70, 200, 200), "发送:  " + sendTaskIndex + "次/ " + sendTaskBytes + "字节/ " + sendTotalBytes + "字节, 接收: " + recvTaskIndex + "次/ " + recvTaskBytes + "字节/ " + recvTotalBytes + "字节", guiStyle);
+			StringBuilder sb4 = new StringBuilder();
+            sb4.Append("发送:");
+            sb4.Append(sendTaskIndex);
+            sb4.Append("次/");
+            sb4.Append(sendTaskBytes);
+            sb4.Append("字节/");
+            sb4.Append(sendTotalBytes);
+            sb4.Append("字节, 接收:");
+            sb4.Append(recvTaskIndex);
+            sb4.Append("次/");
+            sb4.Append(recvTotalBytes);
+            sb4.Append("字节/");
+
+            GUI.Label(new Rect(10, 70, 200, 200), sb4.ToString(), guiStyle);
 
 		}
 	}

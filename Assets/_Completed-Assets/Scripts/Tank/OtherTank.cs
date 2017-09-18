@@ -16,6 +16,7 @@ namespace Complete{
 			//boxCollider.enabled = false;
 			m_Instance.layer = 28;
 
+            m_Shooting.m_isSelf = false;
 			m_Movement.m_isSelf = false;
 			m_Health.m_isTeamMate = false;
 			m_Health.SetHealthUI (health);

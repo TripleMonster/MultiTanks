@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using System.Collections;
 using System;
+using System.Text;
 
 using Complete;
 using UnityEventUtils;
@@ -28,10 +29,10 @@ namespace Manager {
         [HideInInspector] public UEvent_by m_OverEvent = new UEvent_by();
         [HideInInspector] public UnityEvent m_RelifeEvent = new UnityEvent();
 		private NetworkingManager m_NetworkingManager;
-		#endregion
+        #endregion
 
-		#region  -------------------------冷却
-		public Image m_CoolingImage;
+        #region  -------------------------冷却
+        public Image m_CoolingImage;
 		private bool m_isCooling = false;
 		private float m_CoolTime = 5.0f;
 		private float m_Timer = 0;
@@ -63,20 +64,15 @@ namespace Manager {
 
 		void Update ()
 		{
-			//if (m_isInited && !m_isCooling) {
-			//	string text = string.Format ("当前剩余子弹数 : <color=#00FF01FF>{0}</color>", m_SelfTank.m_Shooting.GetCurrentlyHavedShootTimes());
-			//	m_SelfMessage.text = text;
-			//}
+			if (m_isInited && m_isCooling) {
+				m_Timer += Time.deltaTime;
 
-			//if (m_isInited && m_isCooling) {
-			//	m_Timer += Time.deltaTime;
-
-			//	m_CoolingImage.fillAmount = (m_CoolTime - m_Timer) / m_CoolTime;
-			//	if (m_Timer > m_CoolTime) {
-			//		setShootButtonCooling (false);
-			//		m_Timer = 0;
-			//	}
-			//}
+				m_CoolingImage.fillAmount = (m_CoolTime - m_Timer) / m_CoolTime;
+				if (m_Timer > m_CoolTime) {
+					setShootButtonCooling (false);
+					m_Timer = 0;
+				}
+			}
 		}
 			
 
@@ -94,9 +90,7 @@ namespace Manager {
 			m_isCooling = isCooling;
 			m_SelfMessage.text = isCooling ? "<color=#2D44B0FF>正在装配子弹....</color>" : "子弹装配完成";
 
-			//m_SelfTank.m_ShootButton.activated = !isCooling;
-			m_SelfTank.m_ShootButton.enabled = !isCooling;
-			m_CoolingImage.enabled = isCooling;
+            m_SelfTank.m_ShootButton.activated = !isCooling;
 		}
 
 
@@ -117,14 +111,17 @@ namespace Manager {
 			Vector3 initPos = new Vector3 (x, 0f, z);
             Color initColor = getRandomColor(System.DateTime.Now.Millisecond);
 
-			//Debug.Log ("创建自己坦克的初始化位置" + initPos.ToString());
-
 			m_SelfTank.m_Instance = Instantiate (m_Prefab, initPos, m_Prefab.transform.rotation) as GameObject;
 			m_SelfTank.m_Joystick = m_GameJoystick.GetComponent<ETCJoystick> ();
 			m_SelfTank.m_ShootButton = m_GameShootButton.GetComponent<ETCButton> ();
 			m_SelfTank.m_SpeedupButton = m_GameSpeedupButtion.GetComponent<ETCButton> ();
 
-            if (m_SelfTank.initTank (index, initColor, "坦克" + index + "号", initPos)) {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("坦克");
+            sb.Append(index);
+            sb.Append("号");
+
+            if (m_SelfTank.initTank (index, initColor, sb.ToString(), initPos)) {
                 m_followControl.m_followTarget = m_SelfTank.m_Instance.transform;
 
 				m_SelfTank.m_Movement.m_moveEvent.AddListener (SynSelfTankMove);
@@ -144,8 +141,6 @@ namespace Manager {
 		}
 
 		public void SynAllSynDataOfSelfTank () {
-			//Debug.Log ("同步一次本地全量包...........");
-
 			Hashtable table = new Hashtable ();
 			table.Add ("name", SYN_SELF.ALL_DATA);
 			table.Add ("x", m_SelfTank.m_Instance.transform.position.x);
@@ -167,14 +162,17 @@ namespace Manager {
 			OtherTank otherTank = new OtherTank ();
 			otherTank.m_Instance = Instantiate (m_Prefab, new Vector3(tankData.position.x, 0f, tankData.position.y), m_Prefab.transform.rotation) as GameObject;
 
-            if(otherTank.initTank (tankData.index, tankData.color, "坦克" + tankData.index + "号", new Vector3(tankData.position.x, 0f, tankData.position.y), tankData.health) ){
-				//Debug.Log ("网络坦克创建成功!!!" + otherTank.m_Instance.transform.position.ToString());
+			StringBuilder sb = new StringBuilder();
+			sb.Append("坦克");
+			sb.Append(tankData.index);
+			sb.Append("号");
+
+            if(otherTank.initTank (tankData.index, tankData.color, sb.ToString(), new Vector3(tankData.position.x, 0f, tankData.position.y), tankData.health) ){
 				m_OtherTanks [tankData.index] = otherTank;
 			}
 		}
 
 		private void updateLocalDataByIndex (TANK_DATA tankData) {
-			//Debug.Log ("更新网络坦克全量信息到本地......." +  tankData.index);
 			OtherTank tank = m_OtherTanks [tankData.index];
 
 			if (tank.m_Instance != null && tank.m_Movement != null && tank.m_Health != null) {
@@ -189,24 +187,18 @@ namespace Manager {
 		 * 同步位置
 		 */
 		public void SynSelfTankMove() {
-            //Debug.Log ("同步自己坦克的位置.........x=" + m_SelfTank.m_Instance.transform.position.x + ";z=" + m_SelfTank.m_Instance.transform.position.z);
-
             float x = m_SelfTank.m_Instance.transform.position.x;
             float z = m_SelfTank.m_Instance.transform.position.z;
-            float roteY = m_SelfTank.m_Instance.transform.rotation.y;
 
 			Hashtable table = new Hashtable ();
 			table.Add ("name", SYN_SELF.POSTION);
             table.Add ("x", x);
             table.Add ("z", z);
-            table.Add("ry", roteY);
 			m_NetworkingManager.doSynLocalData (table);
 		}
 
 
         public void SynOtherTankMove(byte index, float x, float z){
-            //Debug.Log ("网络坦克开始移动............." + x + "----" + z);
-
 			OtherTank tank = m_OtherTanks [index];
 
 			if (tank.m_Movement != null) {
@@ -218,7 +210,10 @@ namespace Manager {
 		 * 同步普通射击
 		 */
 		public void SynSelfShoot(){
-			//Debug.Log ("同步自己射击的动作");
+			if (m_isInited && !m_isCooling)
+			{
+				m_SelfMessage.text = string.Format("当前剩余子弹数:<color=#00FF01FF>{0}</color>", m_SelfTank.m_Shooting.GetCurrentlyHavedShootTimes());
+			}
 
 			Hashtable table = new Hashtable ();
 			table.Add ("name", SYN_SELF.SHOOT);
@@ -227,7 +222,6 @@ namespace Manager {
 		}
 
         public void SynOtherShoot(byte index, float param1, float param2){
-			//Debug.Log ("同步网络坦克的射击动作");
 			OtherTank tank = m_OtherTanks [index];
 
 			if (tank.m_Shooting != null) {
@@ -239,8 +233,6 @@ namespace Manager {
 		 * 同步血量
 		 */
 		public void SynSelfHealth(float health) {
-			//Debug.Log ("同步自己的血量");
-
 			Hashtable table = new Hashtable ();
 			table.Add ("name", SYN_SELF.HEALTH);
 			table.Add ("health", health);
@@ -248,7 +240,6 @@ namespace Manager {
 		}
 
         public void SynOtherHealth(byte index, float health, float param) {
-			//Debug.Log ("同步网络坦克的血量");
 			OtherTank tank = m_OtherTanks [index];
 
 			if (tank.m_Health != null) 
@@ -274,8 +265,13 @@ namespace Manager {
 		}
 
         public void SynOtherDeath(byte index, byte killerIndex) {
-            string message = "<color=#2D44B0FF>坦克" + killerIndex + "号</color>干掉了<color=#FF00B0FF>坦克" + index +"号</color>";
-            _worldMessageControl.setContent(message);
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<color=#2D44B0FF>坦克");
+            sb.Append(killerIndex);
+            sb.Append("号</color>干掉了<color=#FF00B0FF>坦克");
+            sb.Append(index);
+            sb.Append("号</color>");
+            _worldMessageControl.setContent(sb.ToString());
 
 			OtherTank tank = m_OtherTanks [index];
 			if (tank.m_Health != null) 
@@ -317,8 +313,6 @@ namespace Manager {
         }
 
 		public void SynSelfLockedTarget(float x, float z) {
-			//Debug.Log ("同步自己锁定的目标");
-
 			Hashtable table = new Hashtable ();
 			table.Add ("name", SYN_SELF.LOCKED_TARGET);
 			table.Add ("x", x);

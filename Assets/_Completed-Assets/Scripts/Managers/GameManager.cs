@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,7 +12,6 @@ namespace Manager {
     [RequireComponent(typeof(TanksManager))]
 	public class GameManager : MonoBehaviour   
 	{   
-		[SerializeField] GameObject m_MinimapCamera;
 		[SerializeField] Text m_MessageText; 
 
         private TanksManager m_TanksManager;
@@ -44,7 +44,11 @@ namespace Manager {
 
         void GameOver (byte index) {
             m_MessageText.gameObject.SetActive(true);
-            m_MessageText.text = "你被" + index + "号坦克干掉了!!!";
+            StringBuilder sBuilder = new StringBuilder();
+            sBuilder.Append("你被");
+            sBuilder.Append(index);
+            sBuilder.Append("号坦克干掉了!!!");
+            m_MessageText.text = sBuilder.ToString();
 			m_TanksManager.m_SelfTank.DisbleControl ();
 		}
 

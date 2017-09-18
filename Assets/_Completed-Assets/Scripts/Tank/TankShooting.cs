@@ -23,13 +23,10 @@ namespace Complete
 		private float m_FireTimeInterval = 0;
 		private Vector3 m_TargetPosition;
         public Transform m_FireTarget;
-		
-        List<Shell> shellList = new List<Shell>();     // 子弹列表
-        int m_CurShellIndex;
 
         [HideInInspector] public byte m_index;
-		#endregion
-
+        #endregion
+        [HideInInspector] public bool m_isSelf;
 		[HideInInspector] public UnityEvent m_ShootEvent;
         [HideInInspector] public UEvent_bo m_CoolingEvent = new UEvent_bo ();
 
@@ -79,7 +76,17 @@ namespace Complete
 		}
 
 		public void OnUp() {
-			Fire ();
+            if (m_isSelf) {
+                if (m_ShootTimes < m_TotalShootTimes) {
+                    m_ShootTimes++;
+                    Fire();
+                } else {
+                    m_CoolingEvent.Invoke(true);
+                    m_ShootTimes = 0;
+                }
+            } else {
+                Fire();
+            }
 		}
 
 		public void OnDown() {

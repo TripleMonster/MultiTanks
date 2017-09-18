@@ -23301,7 +23301,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &555467333
 RectTransform:
   m_ObjectHideFlags: 0
@@ -36169,7 +36169,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &888770669
 RectTransform:
   m_ObjectHideFlags: 0
@@ -43257,11 +43257,11 @@ RectTransform:
   m_Father: {fileID: 575313012}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 379, y: 26.5}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -198, y: 26.5}
   m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0}
+  m_Pivot: {x: 1, y: 0}
 --- !u!114 &1065895809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55358,7 +55358,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f32787dc4d9ff471a96b848aa897980a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MinimapCamera: {fileID: 232262896}
   m_MessageText: {fileID: 102963701}
 --- !u!4 &1304999366
 Transform:
@@ -55465,7 +55464,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98dee110522cd42bab15c8ba2e0aa1eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CameraControl: {fileID: 0}
   m_Prefab: {fileID: 1726130953161322, guid: 8c91f1531300f4f139b762d647245742, type: 2}
   m_GameJoystick: {fileID: 588528729}
   m_GameShootButton: {fileID: 1065895807}
@@ -55476,7 +55474,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
-  m_CoolingImage: {fileID: 1193903154}
+  m_CoolingImage: {fileID: 555467334}
   m_followControl: {fileID: 1391056271}
   _worldMessageControl: {fileID: 57529510}
 --- !u!1 &1307573240
@@ -63532,12 +63530,12 @@ Prefab:
     - target: {fileID: 224812466813670142, guid: 8c91f1531300f4f139b762d647245742,
         type: 2}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224812466813670142, guid: 8c91f1531300f4f139b762d647245742,
         type: 2}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224726435390411496, guid: 8c91f1531300f4f139b762d647245742,
         type: 2}
