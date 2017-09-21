@@ -13,7 +13,7 @@ public class FollowControl : MonoBehaviour {
     private Vector3 m_currentPosition;
     private Vector3 m_MoveVelocity;
 
-    float m_initHeight = 20f;
+    float m_initHeight = 30f;
     float m_heightDamping = 2.0f;
     float m_rotationDamping = 3.0f;
     float m_distance = 10.0f;

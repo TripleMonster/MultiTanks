@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.Events;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 using System.Text;
 
@@ -23,10 +24,11 @@ namespace Manager {
 		private bool m_isInited = false;
 		private int m_TankCount = 10;
         private int[,] m_positionArray = new int[4, 2] {{125, -120}, {125, 25}, {30, -120}, {30, 27}};
+        public List<Color> m_ColorList;
 		#endregion
 
 		#region  -------------------------网络
-        [HideInInspector] public UEvent_by m_OverEvent = new UEvent_by();
+        [HideInInspector] public UEvent_s m_OverEvent = new UEvent_s();
         [HideInInspector] public UnityEvent m_RelifeEvent = new UnityEvent();
 		private NetworkingManager m_NetworkingManager;
         #endregion
@@ -57,6 +59,7 @@ namespace Manager {
 				m_NetworkingManager.m_LockedTargetEvent.AddListener(SynOtherLockedTarget); 
                 m_NetworkingManager.m_speedUpEvent.AddListener(SynOtherSpeed);
                 m_NetworkingManager.m_stopMoveEvent.AddListener(SynOtherStopMove);
+                m_NetworkingManager.m_disconnectedEvent.AddListener(SynDisconnected);
             }
 
 			m_OtherTanks = new OtherTank[m_TankCount];
@@ -80,7 +83,10 @@ namespace Manager {
 	
 			yield return m_ReliveWait; 
 
-            createSelfTank (m_NetworkingManager.getClientIndex());
+            //createSelfTank (m_NetworkingManager.getClientIndex());
+            resetTank(true, m_SelfTank.m_PlayerNumber);
+            SynAllSynDataOfSelfTank();
+
             m_followControl.SetColorCorrectionCurvesSaturation(1);
             m_RelifeEvent.Invoke();
 		}
@@ -90,17 +96,7 @@ namespace Manager {
 			m_isCooling = isCooling;
 			m_SelfMessage.text = isCooling ? "<color=#2D44B0FF>正在装配子弹....</color>" : "子弹装配完成";
 
-            m_SelfTank.m_ShootButton.activated = !isCooling;
-		}
-
-
-		private Color getRandomColor (int seed) {
-			Color color = new Color ();
-            UnityEngine.Random.InitState (seed);
-			color.r = UnityEngine.Random.value;
-			color.g = UnityEngine.Random.value;
-			color.b = UnityEngine.Random.value;
-			return color;
+            m_SelfTank.m_ShootButton.enabled = !isCooling;
 		}
 
         public void createSelfTank (byte index)
@@ -108,8 +104,9 @@ namespace Manager {
 			m_SelfTank = new SelfTank ();
             float x = m_positionArray[index % 4, 0];
             float z = m_positionArray[index % 4, 1];
+
 			Vector3 initPos = new Vector3 (x, 0f, z);
-            Color initColor = getRandomColor(System.DateTime.Now.Millisecond);
+            Color initColor = m_ColorList[index];
 
 			m_SelfTank.m_Instance = Instantiate (m_Prefab, initPos, m_Prefab.transform.rotation) as GameObject;
 			m_SelfTank.m_Joystick = m_GameJoystick.GetComponent<ETCJoystick> ();
@@ -153,9 +150,10 @@ namespace Manager {
 		}
 				
 		public void createOtherTanks(TANK_DATA tankData,bool isUpdate) {
-			// 如果isUpdate == true , 就更新本地其它坦克数据, 否则创建新坦克  
-			if (isUpdate) {
-				updateLocalDataByIndex (tankData);
+            // 如果isUpdate == true , 就更新本地其它坦克数据, 否则创建新坦克  
+            OtherTank tank = m_OtherTanks[tankData.index];
+            if (tank != null) {
+                resetTank (false, tankData.index);
 				return;
 			}
 				
@@ -172,13 +170,19 @@ namespace Manager {
 			}
 		}
 
-		private void updateLocalDataByIndex (TANK_DATA tankData) {
-			OtherTank tank = m_OtherTanks [tankData.index];
+        private void resetTank (bool isSelf, byte index) {
+            TankBase tank;
+            if (isSelf) {
+                tank = m_SelfTank;
+            }else{
+                tank = m_OtherTanks[index];
+            }
 
 			if (tank.m_Instance != null && tank.m_Movement != null && tank.m_Health != null) {
-				tank.m_Instance.transform.position = new Vector3 (tankData.position.x, 0, tankData.position.y);
-				tank.m_TankColor = tankData.color;
-				tank.m_Health.SetHealthUI (tankData.health);
+				float x = m_positionArray[index % 4, 0];
+				float z = m_positionArray[index % 4, 1];
+                tank.m_Instance.transform.position = new Vector3 (x, 0, z);
+				tank.m_Health.SetHealthUI (100);
 				tank.EnableControl ();
 			}
 		}
@@ -252,7 +256,14 @@ namespace Manager {
 		 * 同步死亡讯息  index是杀死你的人
 		*/
         public void SynSelfDeath(byte index) {
-            m_OverEvent.Invoke(index);
+            m_SelfTank.DisbleControl();
+
+			StringBuilder sBuilder = new StringBuilder();
+			sBuilder.Append("你被");
+			sBuilder.Append(index);
+			sBuilder.Append("号坦克干掉了!!!");
+            m_OverEvent.Invoke(sBuilder.ToString());
+
             m_followControl.SetColorCorrectionCurvesSaturation(0);
 
 			Hashtable table = new Hashtable ();
@@ -260,7 +271,6 @@ namespace Manager {
             table.Add ("index", (int)index);
 			m_NetworkingManager.doSynLocalData (table);
 
-			m_SelfTank.DisbleControl ();
 			StartCoroutine (Relive());
 		}
 
@@ -329,6 +339,25 @@ namespace Manager {
 				new_rigi.position = new_pos;
 			}
 		}
+
+        public void SynDisconnected (byte index) {
+            Debug.Log("断开连接" + index);
+            if (index == m_SelfTank.m_PlayerNumber) {
+                //m_OverEvent.Invoke("不好意思,你掉线了,请检查网络!");
+                //m_followControl.SetColorCorrectionCurvesSaturation(0);
+				m_SelfTank.DisbleControl();
+                Hashtable table = new Hashtable();
+                table.Add("name", SYN_SELF.DISCONNECTED);
+                table.Add("disconnected", 1);
+                m_NetworkingManager.doSynLocalData(table);
+            } else {
+                OtherTank tank = m_OtherTanks[index];
+
+                if (tank != null && tank.m_Instance != null) {
+                    Destroy(tank.m_Instance.gameObject);
+                }
+            }
+        }
 			
 	}
 }

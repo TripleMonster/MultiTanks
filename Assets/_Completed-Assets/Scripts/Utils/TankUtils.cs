@@ -16,6 +16,7 @@ public struct SYN_SELF
 	public const string ALL_DATA = "selfalldata";
     public const string SPEED_UP = "selfspeedup";
     public const string STOP_MOVE = "selfstopmove";
+    public const string DISCONNECTED = "selfdisconnected";
 }
 
 /*同步别人数据的字段*/
@@ -30,6 +31,7 @@ public struct SYN_OTHER
 	public const string ALL_DATA = "otheralldata";
     public const string SPEED_UP = "otherspeedup";
     public const string STOP_MOVE = "otherstopmove";
+    public const string DISCONNECTED = "otherdisconnected";
 }
 
 /*自己的全量数据,方便同步用的*/
@@ -59,6 +61,7 @@ public class TankUtils
 	private const byte CMD_ALL_DATA = 7;
     private const byte CMD_SPEED_UP = 8;
     private const byte CMD_STOP_MOVE = 9;
+    private const byte CMD_DISCONNECTED = 10;
 
 	public static byte [] toBytes (Hashtable values) {
 		NanoWriter serialize = new NanoWriter ();
@@ -92,6 +95,9 @@ public class TankUtils
             break;
         case SYN_SELF.STOP_MOVE:
                 serialize.putInt(CMD_STOP_MOVE).putInt((int)values["stopmove"]);
+            break;
+        case SYN_SELF.DISCONNECTED:
+            serialize.putInt(CMD_DISCONNECTED).putInt((int)values["disconnected"]);
             break;
 		} 
 
@@ -195,6 +201,14 @@ public class TankUtils
                 values.Add("stopmove", stopMove);
             }
             break;
+        case CMD_DISCONNECTED:
+			{
+				int disconnected;
+				serialize.getInt(out disconnected);
+                values.Add("name", SYN_OTHER.DISCONNECTED);
+				values.Add("disconnected", disconnected);
+			}
+			break;
 		}
 
 		return values;

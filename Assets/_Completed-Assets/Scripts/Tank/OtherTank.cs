@@ -12,8 +12,6 @@ namespace Complete{
 
 			Setup ();
 
-			BoxCollider boxCollider = m_Instance.GetComponent<BoxCollider> ();
-			//boxCollider.enabled = false;
 			m_Instance.layer = 28;
 
             m_Shooting.m_isSelf = false;
@@ -28,16 +26,6 @@ namespace Complete{
             m_Movement.OnMove (pos);
 		}
 
-		public void EnableControl(){
-			m_Movement.enabled = true;
-			m_Shooting.enabled = true;
-		}
-
-		public void DisbleControl(){
-			m_Movement.enabled = false;
-			m_Shooting.enabled = false;
-		}
-
 		public void SetTeamMateByIndex (uint index, int selfIndex) {
 			if ((index + selfIndex) % 2 == 0) 
 			{
@@ -45,6 +33,16 @@ namespace Complete{
 				return;
 			} 
 			m_Health.m_isTeamMate = false;
+		}
+
+		public override void DisbleControl()
+		{
+			base.DisbleControl();
+		}
+
+		public override void EnableControl()
+		{
+			base.EnableControl();
 		}
 	}
 }

@@ -20,38 +20,35 @@ namespace Complete
 
         private void OnTriggerEnter (Collider other)
         {
-            Collider[] colliders = Physics.OverlapSphere (transform.position, m_ExplosionRadius, m_TankMask);
+            if (other.gameObject.layer <= 0)
+                return;
 
+            Collider[] colliders = Physics.OverlapSphere(transform.position, m_ExplosionRadius, m_TankMask);
             for (int i = 0; i < colliders.Length; i++)
             {
-                Rigidbody targetRigidbody = colliders[i].GetComponent<Rigidbody> ();
+                Rigidbody targetRigidbody = colliders[i].GetComponent<Rigidbody>();
 
                 if (!targetRigidbody)
                     continue;
 
                 TankHealth targetHealth = targetRigidbody.GetComponent<TankHealth> ();
-
                 if (!targetHealth)
                     continue;
 
-				//if (!targetHealth.m_isTeamMate)
-					//continue;
-
+                if (targetHealth.m_index == m_index)
+                    continue;
+                
                 float damage = CalculateDamage (targetRigidbody.position);
                 targetHealth.TakeDamage (m_index, damage);
             }
-				
-            m_ExplosionParticles.transform.parent = null;
+			m_ExplosionParticles.transform.parent = null;
+			m_ExplosionParticles.Play();
+			m_ExplosionAudio.Play();
 
-            m_ExplosionParticles.Play();
-
-            m_ExplosionAudio.Play();
-
-            ParticleSystem.MainModule mainModule = m_ExplosionParticles.main;
-            Destroy (m_ExplosionParticles.gameObject, mainModule.duration);
-
-            Destroy (gameObject);
-        }
+			ParticleSystem.MainModule mainModule = m_ExplosionParticles.main;
+			Destroy(m_ExplosionParticles.gameObject, mainModule.duration);
+			Destroy(gameObject);
+		}
 
 
         private float CalculateDamage (Vector3 targetPosition)
@@ -60,7 +57,7 @@ namespace Complete
             float explosionDistance = explosionToTarget.magnitude;
             float relativeDistance = (m_ExplosionRadius - explosionDistance) / m_ExplosionRadius;
 
-			float damage = 0.1f * m_MaxDamage;
+			float damage = 0.05f * m_MaxDamage;
 
             damage = Mathf.Max (0f, damage);
 

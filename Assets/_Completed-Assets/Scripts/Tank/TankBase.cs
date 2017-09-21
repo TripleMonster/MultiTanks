@@ -34,6 +34,7 @@ namespace Complete
 			m_Health = m_Instance.GetComponent<TankHealth> ();
 
             m_Shooting.m_index = m_PlayerNumber;
+            m_Health.m_index = m_PlayerNumber;
 
 			m_CanvasGameObject = m_Instance.GetComponentInChildren<Canvas> ().gameObject;
 
@@ -45,6 +46,20 @@ namespace Complete
 
             Text tankName  = m_CanvasGameObject.transform.Find("TankName").GetComponent<Text>();
             tankName.text = m_Name;
+		}
+
+        public virtual void EnableControl()
+		{
+			m_Movement.enabled = true;
+			m_Shooting.enabled = true;
+			m_Instance.gameObject.SetActive(true);
+		}
+
+        public virtual void DisbleControl()
+		{
+			m_Movement.enabled = false;
+			m_Shooting.enabled = false;
+			m_Instance.gameObject.SetActive(false);
 		}
 	}
 }

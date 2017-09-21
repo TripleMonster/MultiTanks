@@ -12,6 +12,7 @@ namespace Complete
 		[HideInInspector] public bool m_isTeamMate;
         [HideInInspector] public UEvent_f m_HealthEvent;
         [HideInInspector] public UEvent_by m_DeathEvent;
+        [HideInInspector] public byte m_index;
 
 		public float m_StartingHealth = 100f;               // The amount of health each tank starts with.
 		public Slider m_Slider;                             // The slider to represent how much health the tank currently has.
@@ -30,6 +31,7 @@ namespace Complete
 		private void Awake ()
 		{
 			m_ExplosionParticles = Instantiate (m_ExplosionPrefab).GetComponent<ParticleSystem> ();
+            m_ExplosionParticles.transform.parent = transform;
 
 			m_ExplosionAudio = m_ExplosionParticles.GetComponent<AudioSource> ();
 
@@ -96,21 +98,9 @@ namespace Complete
 			m_ExplosionParticles.Play ();
 
 			m_ExplosionAudio.Play();
-
-			Destroy(m_ExplosionParticles.gameObject);
-            PlayDeathAnimation();
+            if (gameObject.activeSelf)
+                gameObject.SetActive(false);
 		}
-
-        void PlayDeathAnimation () {
-            MeshRenderer[] renderers = gameObject.GetComponentsInChildren<MeshRenderer>();
-
-			for (int i = 0; i < renderers.Length; i++)
-			{
-                renderers[i].material.color = Color.black;
-			}
-
-            Destroy(gameObject, 1.0f);
-        }
 
 		public bool getDeath () {
 			return m_Dead;

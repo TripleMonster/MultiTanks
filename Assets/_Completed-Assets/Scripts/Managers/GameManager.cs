@@ -36,20 +36,25 @@ namespace Manager {
 			}
 		}
 
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape)){
+                m_NetworkingManager.Disconnected();
+                Application.Quit();
+            }
+                
+        }
+
         private void initScene(byte index) {
 			m_TanksManager.m_OverEvent.AddListener (GameOver);
             m_TanksManager.m_RelifeEvent.AddListener(GameRelife);
 			m_TanksManager.createSelfTank (index);
 		}
 
-        void GameOver (byte index) {
+        void GameOver (string content) {
             m_MessageText.gameObject.SetActive(true);
-            StringBuilder sBuilder = new StringBuilder();
-            sBuilder.Append("你被");
-            sBuilder.Append(index);
-            sBuilder.Append("号坦克干掉了!!!");
-            m_MessageText.text = sBuilder.ToString();
-			m_TanksManager.m_SelfTank.DisbleControl ();
+          
+            m_MessageText.text = content;
 		}
 
         void GameRelife () {

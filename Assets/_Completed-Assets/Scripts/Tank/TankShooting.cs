@@ -22,7 +22,7 @@ namespace Complete
 		private uint m_ShootTimes = 0;
 		private float m_FireTimeInterval = 0;
 		private Vector3 m_TargetPosition;
-        public Transform m_FireTarget;
+        public List<Transform> m_FireTargetList;
 
         [HideInInspector] public byte m_index;
         #endregion
@@ -43,31 +43,20 @@ namespace Complete
 		}
 
         void AutoFire () {
-			if (m_FireTarget != null)
-			{
-				m_FireTimeInterval += Time.deltaTime;
-				if (m_FireTimeInterval > 1.0f)
-				{
-					SetRotationDirection(m_FireTarget.position);
-					Fire();
-
-					m_FireTimeInterval = 0;
-				}
-			}
+			
         }
 			
 		private void Fire ()
 		{
-			if (m_FireTarget == null)
-				return;
-
-			GameObject shellInstance = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as GameObject;
-            ShellMove shellMove = shellInstance.GetComponent<ShellMove>();
-            ShellExplosion shellExplosion = shellInstance.GetComponent<ShellExplosion>();
-            shellExplosion.m_index = m_index;
-            shellMove.SetIsFire(true);
-            Vector3 newPos = new Vector3(m_FireTarget.position.x, m_FireTarget.position.y, m_FireTarget.position.z);
-            shellMove.SetFirePosition(newPos);
+            for (int i = 0; i < 3; i++) {
+				GameObject shellInstance = Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation) as GameObject;
+				ShellMove shellMove = shellInstance.GetComponent<ShellMove>();
+				ShellExplosion shellExplosion = shellInstance.GetComponent<ShellExplosion>();
+				shellExplosion.m_index = m_index;
+				shellMove.SetIsFire(true);
+                Vector3 newPos = new Vector3(m_FireTargetList[i].position.x , 0, m_FireTargetList[i].position.z);
+				shellMove.SetFirePosition(newPos);
+            }
 
             m_ShootingAudio.clip = m_FireClip;
 			m_ShootingAudio.Play ();

@@ -47,16 +47,14 @@ namespace Complete
 			}
 		}
 
-		public void DisbleControl(){
-			m_Movement.enabled = false;
-			m_Shooting.enabled = false;
+        public override void DisbleControl(){
+            base.DisbleControl();
 			m_Joystick.enabled = false;
 			m_ShootButton.enabled = false;
 		}
 
-		public void EnableControl(){
-			m_Movement.enabled = true;
-			m_Shooting.enabled = true;
+        public override void EnableControl(){
+            base.EnableControl();
 			m_Joystick.enabled = true;
 			m_ShootButton.enabled = true;
 		}

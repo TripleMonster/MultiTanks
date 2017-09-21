@@ -23,8 +23,10 @@ namespace Manager {
 		[HideInInspector] public UEvent_by_f_f m_LockedTargetEvent = new UEvent_by_f_f();
         [HideInInspector] public UEvent_by_f m_speedUpEvent = new UEvent_by_f();
         [HideInInspector] public UEvent_by m_stopMoveEvent = new UEvent_by();
+        [HideInInspector] public UEvent_by m_disconnectedEvent = new UEvent_by();
 
-		private bool[] m_notFirst = new bool[10];   // 记录所有连接到当前房间的id,  为了断线重连用的s
+        [HideInInspector] public bool[] m_notFirst = new bool[10];   // 记录所有连接到当前房间的id,  为了断线重连用的s
+
 
         private static NetworkingManager s_instance = null;
         private NetworkingManager() {}
@@ -40,11 +42,16 @@ namespace Manager {
             init("58e33562af2b4124", 3);
             config("time-machine", "true");
             config("debug-level", "7");
-            connect("");
+            connect(1);
         }
 
         public byte getClientIndex() {
             return (byte)getInt("client-index");
+        }
+
+        public void Disconnected() {
+            m_disconnectedEvent.Invoke(getClientIndex());
+            disconnect();
         }
 
         protected override void onStatusChanged(string newStatus, string oldStatus){
@@ -62,7 +69,7 @@ namespace Manager {
 
         protected override void onDisconnected (int error) {
 			status = "disconnected";
-            m_ConnectedEvent.Invoke(1);
+            m_disconnectedEvent.Invoke(getClientIndex());
 		}
 
         protected override void onResync (byte fromIndex) {
@@ -96,9 +103,14 @@ namespace Manager {
 				break;
 			case SYN_OTHER.DEATH:
 				{
-					m_notFirst [index] = false;
-                    int killerIndex = (int)values ["index"];
-                    m_DeathEvent.Invoke (index, (byte)killerIndex);
+                    if(getInt("is-master") == 1) 
+                    {
+                        if (!m_notFirst[index])
+                            return;
+						m_notFirst[index] = false;
+						int killerIndex = (int)values["index"];
+						m_DeathEvent.Invoke(index, (byte)killerIndex);
+                    }
 				}
 				break; 
 			case SYN_OTHER.LOCKED_TARGET:
@@ -108,7 +120,7 @@ namespace Manager {
 				break;
 			case SYN_OTHER.ALL_DATA:
 				{
-					// 同步全量数据, 如果该index在本地已经存储了,就更新本地数据, 否则就新创建
+                        // 同步全量数据, 如果该index在本地已经存储了,就更新本地数据, 否则就新创建
 					TANK_DATA tankData = new TANK_DATA (index, new Vector2((float)values ["x"], (float)values ["z"]), (Color)values ["color"], (float)values["health"]);
 					m_CreateEvent.Invoke (tankData, m_notFirst[index]);
 					m_notFirst [index] = true;
@@ -123,6 +135,11 @@ namespace Manager {
             case SYN_OTHER.STOP_MOVE:
                 {
                     m_stopMoveEvent.Invoke(index);
+                }
+                break;
+            case SYN_OTHER.DISCONNECTED:
+                {
+                    m_disconnectedEvent.Invoke(index);
                 }
                 break;
 			}

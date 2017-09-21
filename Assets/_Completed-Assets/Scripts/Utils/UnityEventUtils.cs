@@ -17,6 +17,7 @@ namespace UnityEventUtils {
     public class UEvent_by : UnityEvent<byte> {}  
 	public class UEvent_bo : UnityEvent<bool> {}
     public class UEvent_f : UnityEvent<float> {}
+    public class UEvent_s : UnityEvent<string> {}
 
     public class UEvent_by_by : UnityEvent<byte, byte> { }
     public class UEvent_by_f : UnityEvent<byte, float> { }
