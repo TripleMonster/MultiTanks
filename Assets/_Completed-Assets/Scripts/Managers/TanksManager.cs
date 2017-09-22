@@ -83,7 +83,6 @@ namespace Manager {
 	
 			yield return m_ReliveWait; 
 
-            //createSelfTank (m_NetworkingManager.getClientIndex());
             resetTank(true, m_SelfTank.m_PlayerNumber);
             SynAllSynDataOfSelfTank();
 
@@ -153,7 +152,14 @@ namespace Manager {
             // 如果isUpdate == true , 就更新本地其它坦克数据, 否则创建新坦克  
             OtherTank tank = m_OtherTanks[tankData.index];
             if (tank != null) {
-                resetTank (false, tankData.index);
+				if (tank.m_Instance != null && tank.m_Movement != null && tank.m_Health != null)
+				{
+                    float x = tankData.position.x;
+                    float z = tankData.position.y;
+					tank.m_Instance.transform.position = new Vector3(x, 0, z);
+					tank.m_Health.SetHealthUI(100);
+					tank.EnableControl();
+				}
 				return;
 			}
 				
@@ -170,7 +176,7 @@ namespace Manager {
 			}
 		}
 
-        private void resetTank (bool isSelf, byte index) {
+        private void resetTank (bool isSelf, byte index, bool isUpdate = false) {
             TankBase tank;
             if (isSelf) {
                 tank = m_SelfTank;
@@ -203,6 +209,7 @@ namespace Manager {
 
 
         public void SynOtherTankMove(byte index, float x, float z){
+
 			OtherTank tank = m_OtherTanks [index];
 
 			if (tank.m_Movement != null) {
@@ -270,8 +277,6 @@ namespace Manager {
 			table.Add ("name", SYN_SELF.DEATH);
             table.Add ("index", (int)index);
 			m_NetworkingManager.doSynLocalData (table);
-
-			StartCoroutine (Relive());
 		}
 
         public void SynOtherDeath(byte index, byte killerIndex) {

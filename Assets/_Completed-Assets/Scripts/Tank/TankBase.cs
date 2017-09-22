@@ -59,7 +59,6 @@ namespace Complete
 		{
 			m_Movement.enabled = false;
 			m_Shooting.enabled = false;
-			m_Instance.gameObject.SetActive(false);
 		}
 	}
 }

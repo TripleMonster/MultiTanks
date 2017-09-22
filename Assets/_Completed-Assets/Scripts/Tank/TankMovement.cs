@@ -149,7 +149,6 @@ namespace Complete
 
         public void OnOtherMove(Vector2 movePos) {
             Vector3 newPos = new Vector3(movePos.x, 0, movePos.y);
-            //m_TargetPosition = m_direction;
             Vector3 newDirection = newPos - m_Rigidbody.position;
             m_direction = newDirection;
 

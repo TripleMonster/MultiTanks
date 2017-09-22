@@ -17,6 +17,7 @@ public struct SYN_SELF
     public const string SPEED_UP = "selfspeedup";
     public const string STOP_MOVE = "selfstopmove";
     public const string DISCONNECTED = "selfdisconnected";
+    public const string COME_BACK = "selfcomeback";
 }
 
 /*同步别人数据的字段*/
@@ -32,6 +33,7 @@ public struct SYN_OTHER
     public const string SPEED_UP = "otherspeedup";
     public const string STOP_MOVE = "otherstopmove";
     public const string DISCONNECTED = "otherdisconnected";
+    public const string COME_BACK = "othercomeback";
 }
 
 /*自己的全量数据,方便同步用的*/
@@ -62,6 +64,7 @@ public class TankUtils
     private const byte CMD_SPEED_UP = 8;
     private const byte CMD_STOP_MOVE = 9;
     private const byte CMD_DISCONNECTED = 10;
+    private const byte CMD_COME_BACK = 11;
 
 	public static byte [] toBytes (Hashtable values) {
 		NanoWriter serialize = new NanoWriter ();
@@ -98,6 +101,9 @@ public class TankUtils
             break;
         case SYN_SELF.DISCONNECTED:
             serialize.putInt(CMD_DISCONNECTED).putInt((int)values["disconnected"]);
+            break;
+        case SYN_SELF.COME_BACK:
+            serialize.putInt(CMD_COME_BACK).putInt((int)values["comeback"]);
             break;
 		} 
 
@@ -209,6 +215,14 @@ public class TankUtils
 				values.Add("disconnected", disconnected);
 			}
 			break;
+        case CMD_COME_BACK:
+    		{
+    			int come_back;
+    			serialize.getInt(out come_back);
+                    values.Add("name", SYN_OTHER.COME_BACK);
+    			values.Add("comeback", come_back);
+    		}
+    		break;
 		}
 
 		return values;

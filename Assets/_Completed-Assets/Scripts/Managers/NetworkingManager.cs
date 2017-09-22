@@ -103,14 +103,9 @@ namespace Manager {
 				break;
 			case SYN_OTHER.DEATH:
 				{
-                    if(getInt("is-master") == 1) 
-                    {
-                        if (!m_notFirst[index])
-                            return;
-						m_notFirst[index] = false;
-						int killerIndex = (int)values["index"];
-						m_DeathEvent.Invoke(index, (byte)killerIndex);
-                    }
+					m_notFirst[index] = false;
+					int killerIndex = (int)values["index"];
+					m_DeathEvent.Invoke(index, (byte)killerIndex);
 				}
 				break; 
 			case SYN_OTHER.LOCKED_TARGET:
@@ -122,8 +117,7 @@ namespace Manager {
 				{
                         // 同步全量数据, 如果该index在本地已经存储了,就更新本地数据, 否则就新创建
 					TANK_DATA tankData = new TANK_DATA (index, new Vector2((float)values ["x"], (float)values ["z"]), (Color)values ["color"], (float)values["health"]);
-					m_CreateEvent.Invoke (tankData, m_notFirst[index]);
-					m_notFirst [index] = true;
+                    m_CreateEvent.Invoke (tankData, true);
 				}
 				break;
             case SYN_OTHER.SPEED_UP:
@@ -140,6 +134,11 @@ namespace Manager {
             case SYN_OTHER.DISCONNECTED:
                 {
                     m_disconnectedEvent.Invoke(index);
+                }
+                break;
+            case SYN_OTHER.COME_BACK:
+                {
+                    m_AllDataEvent.Invoke();
                 }
                 break;
 			}

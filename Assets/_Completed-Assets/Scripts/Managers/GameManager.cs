@@ -66,5 +66,18 @@ namespace Manager {
             if (m_NetworkingManager != null)
                 m_NetworkingManager.drawGUI();
         }
+
+        private void OnApplicationPause(bool pause)
+        {
+            if (!pause) {
+				if (m_TanksManager != null)
+				{
+                    Hashtable table = new Hashtable();
+                    table.Add("name", SYN_SELF.COME_BACK);
+                    table.Add("comeback", 1);
+                    m_NetworkingManager.doSynLocalData(table);
+				}
+            }
+        }
     }	    
 }

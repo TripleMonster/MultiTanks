@@ -98,8 +98,8 @@ namespace Complete
 			m_ExplosionParticles.Play ();
 
 			m_ExplosionAudio.Play();
-            if (gameObject.activeSelf)
-                gameObject.SetActive(false);
+
+            Destroy(gameObject);
 		}
 
 		public bool getDeath () {
